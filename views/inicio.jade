@@ -1,0 +1,35 @@
+extends layout
+
+block content
+  .container
+    div(ng-controller="MyCtrl")
+      h1 Welcome to the show
+      table.table.table-striped
+        thead
+          tr
+            th Beer
+            th Price
+            th Last Had
+        tbody
+          tr(ng-repeat="item in items") 
+            td {{item.name}}
+            td {{item.price | currency}}
+            td {{item.lastDrank | date: 'fullDate'}}
+            td
+              button.btn.btn-danger.btn-sm(ng-click="removeItem(item)") Remove
+      h3
+        ng-pluralize(count="items.length",when="pluralizer")
+      .form-group
+        label Beer Name
+        input.form-control(ng-model="name")
+      .form-group
+        label Price
+        input.form-control(ng-model="price")
+      .form-group
+        button.btn.btn-success.form-control(ng-click="addBeer()") Add
+
+
+block scripts
+  script(type="text/javascript",src="js/jquery.js")
+  script(type="text/javascript",src="js/bootstrap.js")
+  script(type="text/javascript",src="ng-mongo/inicio.js")

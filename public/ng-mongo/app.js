@@ -1,23 +1,54 @@
-var MyCtrl = function($scope) {
-    $scope.items = [
-        {name: "Idiot IPA", price:1.5, lastDrank:"2013-03-11"},
-        {name: "Inversion IPA", price:0.25, lastDrank:"2013-03-09"}
-    ];
+var ngMongo = angular.module('ngMongo', ['ngResource']);
 
-    $scope.pluralizer = {
-        0 : "No beers!",
-        1 : "Only one left!",
-        other: "{} Beers in Fridge"
+// ngMongo.factory('Mongo', function($http) {
+//     return {
+//         database: function() {
+//             return $http.get('/mongo-api/dptos');
+//         }
+//     };
+// });
+ngMongo.factory('Mongo', function($resource) {
+    return {
+        database: $resource('/mongo-api/dptos')
     };
+});
 
-    $scope.addBeer = function() {
-        var newBeer = {name: $scope.name, price: $scope.price, lastDrank: new Date()};
-        $scope.items.push(newBeer);
+ngMongo.directive('deleteButton', function() {
+    return {
+        restrict: "E",
+        replace: true,
+        transclude: true,
+        template: "<button class='btn btn-danger btn-sm' ng-click='deleteDpto(dpto)'><i class='glyphicon glyphicon-remove glyphicon-white'></i><span ng-transclude></span></button>",
     };
+});
 
-    $scope.removeItem = function(item) {
-        if (confirm("Remove this beer - it's a good one!")) {
-          $scope.items.splice($scope.items.indexOf(item),1);
+ngMongo.controller('ListCtrl', function($scope, Mongo) {
+
+    // var result = Mongo.database();
+    //     result.success(function(data) {
+    //         $scope.dptos = data;
+    //     }
+    // );
+
+    $scope.dptos = Mongo.database.query({}, isArray = true);
+    
+    $scope.addDpto = function() {
+        if ($scope.reg._id !=="" && $scope.reg.desdep !== "") {
+            var newReg = new Mongo.database($scope.reg);
+            newReg.$save();
+            $scope.dptos = Mongo.database.query({}, isArray = true);
+            // $scope.dptos.unshift($scope.reg);
+            $scope.reg = {};
         }
     };
-};
+
+    $scope.deleteDpto = function(dpto) {
+        if (confirm("Delete this departamento? There's no undo...")) {
+            dpto.$delete({_id: dpto._id});
+            $scope.dptos = Mongo.database.query({}, isArray = true);
+            // $scope.dptos.splice($scope.dptos.indexOf(dpto),1);
+        }
+    };
+
+
+});
